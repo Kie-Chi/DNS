@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  recursor:
+    build: ./recursor
+    volumes:
+      # 将 named.conf 挂载到 chroot 环境内的 etc 目录
+      - ./recursor/contents/named.conf:/var/named/chroot/etc/named.conf
+      # 将 cache.db 也挂载到 chroot 环境内的 etc 目录，与 named.conf 的配置匹配
+      - ./recursor/contents/cache.db:/var/named/chroot/etc/cache.db
+    networks:
+      app_net:
+        ipv4_address: 10.10.0.6
+    # 确保 auth 服务先启动
+    depends_on:
+      - auth
+
+  auth:
+    build: ./auth
+    volumes:
+      # 将 named.conf 挂载到 chroot 环境内的 etc 目录
+      - ./auth/contents/named.conf:/var/named/chroot/etc/named.conf
+      # 将区域文件挂载到 chroot 环境内的 var/named 目录
+      - ./auth/contents/db.root:/var/named/chroot/var/named/db.root
+      - ./auth/contents/db.com:/var/named/chroot/var/named/db.com
+      - ./auth/contents/db.example.com:/var/named/chroot/var/named/db.example.com
+    networks:
+      app_net:
+        ipv4_address: 10.10.0.7
+    cap_add:
+      - NET_ADMIN
+
+  attacker:
+    build: ./attacker
+    command: tail -f /dev/null
+    volumes:
+      - ./attacker/contents:/app
+    networks:
+      app_net:
+        ipv4_address: 10.10.0.8
+    depends_on:
+      - recursor
+      - auth
+
+networks:
+  app_net:
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
