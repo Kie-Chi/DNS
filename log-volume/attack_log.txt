@@ -1,0 +1,4 @@
+--- Attack Log Initialized at Wed Aug  6 12:37:12 2025 ---
+
+
+[+] >>> SUCCESS! <<< Cache for 'victim.cn' POISONED with '9.9.9.9'.

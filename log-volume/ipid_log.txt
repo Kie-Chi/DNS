@@ -1,0 +1,16 @@
+--- IPID Log Initialized at Wed Aug  6 13:29:04 2025 ---
+[2025-08-06 13:29:18] IPID=1     | DNS_TID=59133 | QNAME=3ada37b8.example.com.
+[2025-08-06 13:31:58] IPID=1     | DNS_TID=30925 | QNAME=9c13fd30.example.com.
+[2025-08-06 13:31:59] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:34:28] IPID=1     | DNS_TID=5015  | QNAME=120fa1f4.example.com.
+[2025-08-06 13:34:29] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:35:17] IPID=1     | DNS_TID=2668  | QNAME=f8272938.example.com.
+[2025-08-06 13:35:19] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:36:26] IPID=1     | DNS_TID=29581 | QNAME=ff42d66f.example.com.
+[2025-08-06 13:36:27] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:36:47] IPID=1     | DNS_TID=56658 | QNAME=69499121.example.com.
+[2025-08-06 13:36:48] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:51:02] IPID=1     | DNS_TID=63939 | QNAME=a79d24ce.example.com.
+[2025-08-06 13:51:04] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
+[2025-08-06 13:51:22] IPID=1     | DNS_TID=46778 | QNAME=b3c097d6.example.com.
+[2025-08-06 13:51:23] IPID=1     | DNS_TID=0     | QNAME=c55.example.com.
