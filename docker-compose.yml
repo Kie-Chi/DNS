@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  cdns:
+    build: ./cdns
+    volumes:
+      # BIND9
+      - ./cdns/contents/named.conf:/var/named/chroot/etc/named.conf
+      # Unbound
+      # - ./recursor/contents/unbound.conf:/usr/local/etc/unbound/unbound.conf
+      # - ./recursor/contents/cache.db:/usr/local/etc/unbound/root.hints
+    networks:
+      app_net:
+        ipv4_address: 10.2.0.2
+
+  attacker:
+    build: ./attacker
+    volumes:
+      - ./attacker/contents:/app
+    networks:
+      app_net:
+        ipv4_address: 10.2.0.3
+networks:
+  app_net:
+    ipam:
+      config:
+        - subnet: 10.2.0.0/24
