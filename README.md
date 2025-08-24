@@ -6,3 +6,4 @@
 - mdns-docker: Docker环境复现Maginot-DNS攻击
 - mdns-vm: 虚拟机环境复现Maginot-DNS攻击
 - saddns-vm: 虚拟机环境复现SADDNS攻击
+- tsuname-vm: Docker环境复现TsuNAME攻击
