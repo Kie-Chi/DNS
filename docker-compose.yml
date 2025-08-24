@@ -1,0 +1,83 @@
+version: "3.9"
+services:
+  recursor:
+    build: ./recursor
+    volumes:
+      # dnsmasq
+      # - ./forwarder/contents/dnsmasq.conf:/etc/dnsmasq.conf
+      # BIND9
+      # - ./recursor/contents/cache.db:/var/named/chroot/etc/cache.db
+      # - ./recursor/contents/named.conf:/var/named/chroot/etc/named.conf
+      # Unbound
+      # - ./recursor/contents/unbound.conf:/usr/local/etc/unbound/unbound.conf
+      # pdns
+      - ./recursor/contents/recursor.conf:/usr/local/etc/recursor.conf
+      - ./recursor/contents/cache.db:/etc/powerdns/cache.db
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.2
+  auth:
+    build: ./auth
+    volumes:
+      # BIND9
+      - ./auth/contents/named.conf:/var/named/chroot/etc/named.conf
+      - ./auth/contents/db.root:/var/named/chroot/var/named/db.root
+      - ./auth/contents/db.com:/var/named/chroot/var/named/db.com
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.3
+  auth2:
+    build: ./auth2
+    volumes:
+      # BIND9
+      - ./auth2/contents/named.conf:/var/named/chroot/etc/named.conf
+      - ./auth2/contents/db.a.com:/var/named/chroot/var/named/db.a.com
+      - ./auth2/contents/count.py:/count.py
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.4
+  auth3:
+    build: ./auth3
+    volumes:
+      # BIND9
+      - ./auth3/contents/named.conf:/var/named/chroot/etc/named.conf
+      - ./auth3/contents/db.b.com:/var/named/chroot/var/named/db.b.com
+      - ./auth3/contents/count.py:/count.py
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.5
+  auth4:
+    build: ./auth4
+    volumes:
+      # BIND9
+      - ./auth4/contents/named.conf:/var/named/chroot/etc/named.conf
+      - ./auth4/contents/db.c.com:/var/named/chroot/var/named/db.c.com
+      - ./auth4/contents/count.py:/count.py
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.6
+  attacker:
+    build: ./attacker
+    command: tail -f /dev/null
+    volumes:
+      - ./attacker/contents:/app
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.3.0.7
+networks:
+  app_net:
+    ipam:
+      config:
+        - subnet: 10.3.0.0/24
