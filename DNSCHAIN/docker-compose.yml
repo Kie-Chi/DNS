@@ -1,0 +1,95 @@
+version: "3.9"
+
+x-recursor-template: &recursor-service
+  volumes:
+    - ./recursor-configs/unbound.conf:/usr/local/etc/unbound/unbound.conf
+  cap_add:
+    - NET_ADMIN
+
+x-forwarder-template: &forwarder-service
+  cap_add:
+    - NET_ADMIN
+
+services:
+  unbound-builder:
+    build: ./unbound
+    image: unbound-builder:latest
+
+  forwarder-l1:
+    image: unbound-builder:latest
+    <<: *forwarder-service
+    volumes:
+      - ./forwarder-configs/l1.conf:/usr/local/etc/unbound/unbound.conf
+    depends_on:
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.5
+  recursor-l1:
+    image: unbound-builder:latest
+    <<: *recursor-service
+    depends_on: 
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.6
+  forwarder-l2-1:
+    image: unbound-builder:latest
+    <<: *forwarder-service
+    volumes:
+      - ./forwarder-configs/l2-1.conf:/usr/local/etc/unbound/unbound.conf
+    depends_on:
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.7
+  recursor-l2-1:
+    image: unbound-builder:latest
+    <<: *recursor-service
+    depends_on: 
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.8
+  forwarder-l2-2:
+    image: unbound-builder:latest
+    <<: *forwarder-service
+    volumes:
+      - ./forwarder-configs/l2-2.conf:/usr/local/etc/unbound/unbound.conf
+    depends_on:
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.9
+  recursor-l2-2:
+    image: unbound-builder:latest
+    <<: *recursor-service
+    depends_on: 
+      - unbound-builder
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.10
+  auth:
+    build: ./auth
+    volumes:
+      - ./auth/contents:/app
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.3
+  victim:
+    build: ./victim
+    command: tail -f > /dev/null
+    volumes:
+      - ./victim/contents:/app
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.6.0.4
+networks:
+  app_net:
+    ipam:
+      config:
+        - subnet: 10.6.0.0/24

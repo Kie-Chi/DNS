@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  drs:
+    build: ./drs
+    volumes:
+      - ./drs/contents/unbound.conf:/usr/local/etc/unbound/unbound.conf
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.5.0.2
+  auth:
+    build: ./auth
+    volumes:
+      - ./auth/contents:/app
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.5.0.3
+  victim:
+    build: ./victim
+    command: tail -f > /dev/null
+    volumes:
+      - ./victim/contents:/app
+    cap_add:
+      - NET_ADMIN
+    networks:
+      app_net:
+        ipv4_address: 10.5.0.4
+networks:
+  app_net:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/24
