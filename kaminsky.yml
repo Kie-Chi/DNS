@@ -15,14 +15,15 @@ builds:
     image: "myrecursor"
     ref: "std:recursor"
     behavior: . hint fake-auth
-    volumes:
-      - rndc.key:/usr/local/etc/rndc.key
-      - ${origin}./${name}/named:/usr/local/var/named:rw
   attacker:
     image: "attacker"
     volumes:
       - git://github.com/Kie-Chi/Cpings.git#.:/usr/local/etc/Cpings
     command: ["tail", "-f", "/dev/null"]
+    environment:
+      - "RECURSOR=${services.recursor.ip}"
+      - "FAKEAUTH=${services.fake-auth.ip}"
+      - "AUTH=${services.auth.ip}"
   auth:
     image: "bind"
     ref: "std:auth"
@@ -41,7 +42,4 @@ builds:
       - "ATTACKER=${services.attacker.ip}"
       - "SOFTWARE=${services.recursor.image.software}"
     volumes:
-      - rndc.key:/usr/local/etc/rndc.key
-      - resource:/scripts/py/trace.py:/usr/local/etc/trace.py
-      - resource:/scripts/py/bind.py:/usr/local/etc/bind.py
-      - ${origin}./recursor/named:/usr/local/var/named:rw
+      - ${origin}./recursor/contents/bind:/usr/local/var/bind:rw
