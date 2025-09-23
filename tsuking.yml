@@ -1,0 +1,54 @@
+name: "tsuking-chain"
+inet: 10.66.0.0/24
+include: resource:/includes/traffic.yml
+images:
+  - name: "unbound"
+    ref: "unbound:1.17.1"
+  - name: "python39"
+    ref: "python:3.9.0"
+
+builds:
+  - auth: # malicious authoirity server
+      image: "python39"
+      volumes:
+        - server.py:/usr/local/etc/server.py
+      command: ["python3", "/usr/local/etc/server.py"]
+  - victim: # victim server
+      image: "python39"
+      command: ["tail", "-f", ">", "/dev/null"]
+  - fl: # forwarder template
+      image: "unbound"
+      volumes:
+        - weak.conf:/usr/local/etc/unbound/unbound.conf
+      build: false
+  - rl: # recursor template
+      image: "unbound"
+      volumes:
+        - weak.conf:/usr/local/etc/unbound/unbound.conf
+      behavior: example.com stub auth
+      build: false
+  - name: "fl-{{ i }}"
+    for_each:
+      range: 8
+    template:
+      ref: "fl"
+      behavior: ". forward rl-{{ i }}"
+  - name: "rl-{{ i }}"
+    for_each:
+      range: 8
+    template:
+      ref: "rl"
+  - attacker: # attacker, use command `dig @$ENTRY *.example.com` to trigger
+      image: "python39"
+      command: ["tail", "-f", ">", "/dev/null"]
+      environment:
+        - "ENTRY=${services.fl-0.ip}"
+  - traffic: # traffic
+      environment:
+        - "RECURSOR=" # dns_analyzer will fail for null
+        - "ATTACKER=" # dns_analyzer will fail for null
+        - "SOFTWARE=${services.rl-0.image.software}" # no use
+        - "FILTER=udp and port 53 and dst host ${services.victim.ip}"
+      volumes:
+        - ${origin}./${name}/contents:/usr/local/var/unbound:rw # no use
+      container_name: ${project.name}-${name}
