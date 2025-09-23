@@ -9,4 +9,5 @@
 - saddns-vm: 虚拟机环境复现SADDNS攻击
 - tsuname-docker: Docker环境复现TsuNAME攻击
 - tsuname-vm: 虚拟机环境复现TsuNAME攻击
-- tsuking: 利用解析器RD标志位实现不严谨进行DDoS攻击
+- tsuking: TsuKing攻击
+- tsuking-dnsb: 使用dnsb构建TsuKing攻击
