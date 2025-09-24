@@ -8,20 +8,20 @@ images:
     ref: "python:3.9.0"
 
 builds:
-  - auth: # malicious authoirity server
+  - auth:
       image: "python39"
       volumes:
         - server.py:/usr/local/etc/server.py
       command: ["python3", "/usr/local/etc/server.py"]
-  - victim: # victim server
+  - victim:
       image: "python39"
       command: ["tail", "-f", ">", "/dev/null"]
-  - fl: # forwarder template
+  - fl:
       image: "unbound"
       volumes:
         - weak.conf:/usr/local/etc/unbound/unbound.conf
       build: false
-  - rl: # recursor template
+  - rl:
       image: "unbound"
       volumes:
         - weak.conf:/usr/local/etc/unbound/unbound.conf
@@ -29,26 +29,30 @@ builds:
       build: false
   - name: "fl-{{ i }}"
     for_each:
-      range: 8
+      range: 16
     template:
       ref: "fl"
       behavior: ". forward rl-{{ i }}"
   - name: "rl-{{ i }}"
     for_each:
-      range: 8
+      range: 16
     template:
       ref: "rl"
-  - attacker: # attacker, use command `dig @$ENTRY *.example.com` to trigger
+  - attacker:
       image: "python39"
-      command: ["tail", "-f", ">", "/dev/null"]
+      command: ["tail", "-f", "/dev/null"]
+      volumes:
+        - git://github.com/Kie-Chi/Cpings.git#.:/usr/local/etc/Cpings
+        - probe.c:/usr/local/etc/Cpings/src/myprobe.c
       environment:
-        - "ENTRY=${services.fl-0.ip}"
-  - traffic: # traffic
+        - "ENTRY=${services.fl-1.ip}"
+  - traffic:
       environment:
         - "RECURSOR=" # dns_analyzer will fail for null
         - "ATTACKER=" # dns_analyzer will fail for null
         - "SOFTWARE=${services.rl-0.image.software}" # no use
         - "FILTER=udp and port 53 and dst host ${services.victim.ip}"
+        - "POLL_GAP=3000"
       volumes:
         - ${origin}./${name}/contents:/usr/local/var/unbound:rw # no use
       container_name: ${project.name}-${name}
