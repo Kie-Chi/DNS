@@ -11,7 +11,7 @@ builds:
   - auth:
       image: "python39"
       volumes:
-        - git://github.com/Kie-Chi/DNS.git#server.py?ref=remote-tsuking:/usr/local/etc/server.py
+        - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#server.py:/usr/local/etc/server.py
       command: ["python3", "/usr/local/etc/server.py"]
   - victim:
       image: "python39"
@@ -19,12 +19,12 @@ builds:
   - fl:
       image: "unbound"
       volumes:
-        - git://github.com/Kie-Chi/DNS.git#weak.conf?ref=remote-tsuking:/usr/local/etc/unbound/unbound.conf
+        - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#weak.conf:/usr/local/etc/unbound/unbound.conf
       build: false
   - rl:
       image: "unbound"
       volumes:
-        - git://github.com/Kie-Chi/DNS.git#weak.conf?ref=remote-tsuking:/usr/local/etc/unbound/unbound.conf
+        - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#weak.conf:/usr/local/etc/unbound/unbound.conf
       behavior: example.com stub auth
       build: false
   - name: "fl-{{ i }}"
@@ -43,7 +43,7 @@ builds:
       command: ["tail", "-f", ">", "/dev/null"]
       volumes:
         - git://github.com/Kie-Chi/Cpings.git#.:/usr/local/etc/Cpings
-        - git://github.com/Kie-Chi/DNS.git#probe.c?ref=remote-tsuking:/usr/local/etc/Cpings/src/myprobe.c
+        - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#probe.c:/usr/local/etc/Cpings/src/myprobe.c
       environment:
         - "ENTRY=${services.fl-1.ip}"
   - traffic:
