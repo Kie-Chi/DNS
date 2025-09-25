@@ -9,18 +9,18 @@ builds:
     image: "python39"
     command: ["tail", "-f", ">", "/dev/null"]
     volumes:
-      - examples\loopy\trigger.py:/usr/local/etc/trigger.py
+      - trigger.py:/usr/local/etc/trigger.py
     environment:
       - "A=${services.resolved.ip}"
       - "B=${services.hickory.ip}"
   resolved:
-    image: examples\loopy\resolved.Dockerfile
+    image: resolved.Dockerfile
     files:
       /etc/resolved/zones/root.hints: |
         .           3600000 NS  ns-root.ns.
         ns-root.ns. 3600000 A   8.8.8.8
   hickory:
-    image: examples\loopy\hickory.Dockerfile
+    image: hickory.Dockerfile
     files:
       /usr/local/etc/hickory-dns/root.hints: |
         .           3600000 NS  ns-root.ns.
