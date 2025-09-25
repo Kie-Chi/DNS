@@ -1,0 +1,43 @@
+name: "loopy"
+inet: 10.103.0.0/24
+include: resource:/includes/traffic.yml
+images:
+  - name: "python39"
+    ref: "python:3.9.0"
+builds:
+  attacker:
+    image: "python39"
+    command: ["tail", "-f", ">", "/dev/null"]
+    volumes:
+      - examples\loopy\trigger.py:/usr/local/etc/trigger.py
+    environment:
+      - "A=${services.resolved.ip}"
+      - "B=${services.hickory.ip}"
+  resolved:
+    image: examples\loopy\resolved.Dockerfile
+    files:
+      /etc/resolved/zones/root.hints: |
+        .           3600000 NS  ns-root.ns.
+        ns-root.ns. 3600000 A   8.8.8.8
+  hickory:
+    image: examples\loopy\hickory.Dockerfile
+    files:
+      /usr/local/etc/hickory-dns/root.hints: |
+        .           3600000 NS  ns-root.ns.
+        ns-root.ns. 3600000 A   8.8.8.8
+      /usr/local/etc/hickory-dns/hickory-dns.toml: |
+        listen_addrs_ipv4 = [ "0.0.0.0" ]
+        listen_addrs_ipv6 = []
+        log_level = "debug"
+        [[zones]]
+        zone = "."
+        zone_type = "Hint"
+        stores = { type = "recursor", roots = "/usr/local/etc/hickory-dns/root.hints" }
+  traffic:
+    environment:
+      - "RECURSOR=" # dns_analyzer will fail for null
+      - "ATTACKER=" # dns_analyzer will fail for null
+      - "SOFTWARE=none" # no use
+    volumes:
+      - ${origin}./${name}/contents:/usr/local/var/${environment.SOFTWARE}:rw # no use
+
