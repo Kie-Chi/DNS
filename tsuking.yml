@@ -49,7 +49,7 @@ builds:
   - traffic:
       environment:
         - "RECURSOR=" # dns_analyzer will fail for null
-        - "ATTACKER={services.attacker.ip}" # no use
+        - "ATTACKER=${services.attacker.ip}" # no use
         - "SOFTWARE=${services.rl-0.image.software}" # no use
         - "FILTER=udp and port 53 and dst host ${services.victim.ip}"
         - "POLL_GAP=3000"
