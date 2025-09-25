@@ -12,10 +12,10 @@ builds:
       image: "python39"
       volumes:
         - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#server.py:/usr/local/etc/server.py
-      command: ["python3", "/usr/local/etc/server.py"]
+      command: "python3 /usr/local/etc/server.py"
   - victim:
       image: "python39"
-      command: ["tail", "-f", ">", "/dev/null"]
+      command: "tail -f /dev/null"
   - fl:
       image: "unbound"
       volumes:
@@ -40,7 +40,7 @@ builds:
       ref: "rl"
   - attacker:
       image: "python39"
-      command: ["tail", "-f", ">", "/dev/null"]
+      command: "tail -f /dev/null"
       volumes:
         - git://github.com/Kie-Chi/Cpings.git#.:/usr/local/etc/Cpings
         - git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#probe.c:/usr/local/etc/Cpings/src/myprobe.c
@@ -49,7 +49,7 @@ builds:
   - traffic:
       environment:
         - "RECURSOR=" # dns_analyzer will fail for null
-        - "ATTACKER=" # dns_analyzer will fail for null
+        - "ATTACKER={services.attacker.ip}" # no use
         - "SOFTWARE=${services.rl-0.image.software}" # no use
         - "FILTER=udp and port 53 and dst host ${services.victim.ip}"
         - "POLL_GAP=3000"
