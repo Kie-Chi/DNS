@@ -11,3 +11,4 @@
 - tsuname-vm: 虚拟机环境复现TsuNAME攻击
 - tsuking: TsuKing攻击
 - tsuking-dnsb: 使用dnsb构建TsuKing攻击
+- loopy-dnsb: 使用dnsb构建Traffic Loop攻击
