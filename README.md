@@ -12,3 +12,9 @@
 - tsuking: TsuKing攻击
 - tsuking-dnsb: 使用dnsb构建TsuKing攻击
 - loopy-dnsb: 使用dnsb构建Traffic Loop攻击
+
+## 远端库
+- remote-tsuking: 远端TsuKing攻击配置
+  ```yaml
+    include: git://github.com/Kie-Chi/DNS#tsuking.yml?ref=remote-tsuking
+  ```
