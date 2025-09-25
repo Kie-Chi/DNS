@@ -16,5 +16,5 @@
 ## 远端库
 - remote-tsuking: 远端TsuKing攻击配置
   ```yaml
-    include: git://github.com/Kie-Chi/DNS#tsuking.yml?ref=remote-tsuking
+    include: git://github.com/Kie-Chi/DNS.git?ref=remote-tsuking#tsuking.yml
   ```
