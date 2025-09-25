@@ -167,11 +167,15 @@ int main(int argc, char** argv) {
     }
     printf("[+] Sender framework initialized.\n");
 
+    struct in_addr local_ip_addr;
+    local_ip_addr.s_addr = local_addr(target_ip); // 使用目标IP来确定路由和源IP
+    char *my_real_ip = inet_ntoa(local_ip_addr);
+    printf("[+] Determined local source IP for target %s -> %s\n", target_ip, my_real_ip);
     // Prepare arguments for the packet creation function
     make_query_args_t* q_args = (make_query_args_t*)alloc_memory(sizeof(make_query_args_t));
     q_args->target_ip = _strdup(target_ip);
     q_args->base_domain = _strdup(base_domain);
-    q_args->src_ip = _strdup("10.0.0.5"); // Dummy source IP for the raw packet
+    q_args->src_ip = _strdup(my_real_ip); // 使用确定的本地源IP
     q_args->request_counter = 0;
     
     // Create the burst strategy
